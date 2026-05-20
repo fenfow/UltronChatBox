@@ -198,7 +198,7 @@ function registerUser() {
         return;
     }
 
-    fetch("http://127.0.0.1:5000/register", {
+    fetch("https://ultronchatbox.onrender.com/register", {
         method: "POST",
         headers: {
             "Content-Type": "application/json",
@@ -238,7 +238,7 @@ function loginUser() {
         return;
     }
 
-    fetch("http://127.0.0.1:5000/login", {
+    fetch("https://ultronchatbox.onrender.com/login", {
         method: "POST",
         headers: {
             "Content-Type": "application/json",
@@ -307,7 +307,7 @@ function logoutUser() {
 function createConversationThenAsk(userInput) {
     if (!currentUserId) return;
 
-    fetch("http://127.0.0.1:5000/new-conversation", {
+    fetch("https://ultronchatbox.onrender.com/new-conversation", {
         method: "POST",
         headers: {
             "Content-Type": "application/json",
@@ -328,7 +328,7 @@ function createConversationThenAsk(userInput) {
 }
 
 function loadMessages(conversationId) {
-    fetch(`http://127.0.0.1:5000/load-messages/${conversationId}`)
+    fetch(`https://ultronchatbox.onrender.com/load-messages/${conversationId}`)
         .then(response => response.json())
         .then(messages => {
             chatBox.innerHTML = "";
@@ -353,7 +353,7 @@ function loadMessages(conversationId) {
 function loadConversationList(userId) {
     if (!userId) return;
 
-    fetch(`http://127.0.0.1:5000/conversations/${userId}`)
+    fetch(`https://ultronchatbox.onrender.com/conversations/${userId}`)
         .then(response => response.json())
         .then(conversations => {
             conversationList.innerHTML = "";
@@ -461,7 +461,7 @@ function askUltron() {
         formData.append("conversation_id", currentConversationId);
         formData.append("message", userInput || "Analyze this file.");
 
-        fetch("http://127.0.0.1:5000/analyze-file", {
+        fetch("https://ultronchatbox.onrender.com/analyze-file", {
             method: "POST",
             body: formData
         })
@@ -483,7 +483,7 @@ function askUltron() {
             });
 
     } else {
-        fetch("http://127.0.0.1:5000/ask", {
+        fetch("https://ultronchatbox.onrender.com/ask", {
             method: "POST",
             headers: {
                 "Content-Type": "application/json",
