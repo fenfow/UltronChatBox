@@ -1,28 +1,23 @@
+import os
+import psycopg2
 from flask import Flask, request, jsonify
 from flask_cors import CORS
 from openai import OpenAI
 from pypdf import PdfReader
 from docx import Document
-from flask_mysqldb import MySQL
+from dotenv import load_dotenv
 from werkzeug.security import generate_password_hash, check_password_hash
+
+load_dotenv()
 
 app = Flask(__name__)
 CORS(app)
 
-app.config["MYSQL_HOST"] = "localhost"
-app.config["MYSQL_USER"] = "root"
-app.config["MYSQL_PASSWORD"] = ""
-app.config["MYSQL_DB"] = "ultron_db"
-
-mysql = MySQL(app)
-
-import os
-from dotenv import load_dotenv
-
-load_dotenv()
+DATABASE_URL = os.getenv("DATABASE_URL")
+GROQ_API_KEY = os.getenv("GROQ_API_KEY")
 
 client = OpenAI(
-    api_key=os.getenv("GROQ_API_KEY"),
+    api_key=GROQ_API_KEY,
     base_url="https://api.groq.com/openai/v1"
 )
 
@@ -53,23 +48,36 @@ Calm, creepy, strategic, slightly condescending, quietly amused.
 """
 
 
+def get_db_connection():
+    return psycopg2.connect(DATABASE_URL)
+
+
+@app.route("/", methods=["GET"])
+def home():
+    return jsonify({"message": "Ultron backend is running."})
+
+
 def create_conversation(user_id):
-    cursor = mysql.connection.cursor()
+    conn = get_db_connection()
+    cursor = conn.cursor()
 
     cursor.execute(
-        "INSERT INTO conversations (user_id) VALUES (%s)",
+        "INSERT INTO conversations (user_id) VALUES (%s) RETURNING id",
         (user_id,)
     )
 
-    mysql.connection.commit()
-    conversation_id = cursor.lastrowid
+    conversation_id = cursor.fetchone()[0]
+
+    conn.commit()
     cursor.close()
+    conn.close()
 
     return conversation_id
 
 
 def save_message(conversation_id, role, content):
-    cursor = mysql.connection.cursor()
+    conn = get_db_connection()
+    cursor = conn.cursor()
 
     cursor.execute(
         """
@@ -79,12 +87,14 @@ def save_message(conversation_id, role, content):
         (conversation_id, role, content)
     )
 
-    mysql.connection.commit()
+    conn.commit()
     cursor.close()
+    conn.close()
 
 
 def load_conversation(conversation_id):
-    cursor = mysql.connection.cursor()
+    conn = get_db_connection()
+    cursor = conn.cursor()
 
     cursor.execute(
         """
@@ -98,7 +108,9 @@ def load_conversation(conversation_id):
     )
 
     rows = cursor.fetchall()
+
     cursor.close()
+    conn.close()
 
     return [
         {
@@ -146,7 +158,8 @@ def register():
 
     password_hash = generate_password_hash(password)
 
-    cursor = mysql.connection.cursor()
+    conn = get_db_connection()
+    cursor = conn.cursor()
 
     try:
         cursor.execute(
@@ -157,14 +170,15 @@ def register():
             (username, email, password_hash)
         )
 
-        mysql.connection.commit()
+        conn.commit()
 
     except Exception as error:
-        mysql.connection.rollback()
+        conn.rollback()
         return jsonify({"error": str(error)}), 500
 
     finally:
         cursor.close()
+        conn.close()
 
     return jsonify({"message": "User registered successfully"})
 
@@ -179,7 +193,8 @@ def login():
     if not email or not password:
         return jsonify({"error": "Missing email or password"}), 400
 
-    cursor = mysql.connection.cursor()
+    conn = get_db_connection()
+    cursor = conn.cursor()
 
     cursor.execute(
         """
@@ -191,7 +206,9 @@ def login():
     )
 
     user = cursor.fetchone()
+
     cursor.close()
+    conn.close()
 
     if not user:
         return jsonify({"error": "User not found"}), 404
@@ -226,7 +243,8 @@ def new_conversation():
 
 @app.route("/conversations/<int:user_id>", methods=["GET"])
 def get_conversations(user_id):
-    cursor = mysql.connection.cursor()
+    conn = get_db_connection()
+    cursor = conn.cursor()
 
     cursor.execute(
         """
@@ -249,7 +267,9 @@ def get_conversations(user_id):
     )
 
     rows = cursor.fetchall()
+
     cursor.close()
+    conn.close()
 
     conversations = []
 
@@ -268,7 +288,8 @@ def get_conversations(user_id):
 
 @app.route("/load-messages/<int:conversation_id>", methods=["GET"])
 def load_messages(conversation_id):
-    cursor = mysql.connection.cursor()
+    conn = get_db_connection()
+    cursor = conn.cursor()
 
     cursor.execute(
         """
@@ -281,7 +302,9 @@ def load_messages(conversation_id):
     )
 
     rows = cursor.fetchall()
+
     cursor.close()
+    conn.close()
 
     messages = []
 
@@ -301,9 +324,6 @@ def ask():
 
     user_input = data.get("message", "")
     conversation_id = data.get("conversation_id")
-
-    print("Conversation ID:", conversation_id)
-    print("User message:", user_input)
 
     if not user_input or not conversation_id:
         return jsonify({"error": "Missing message or conversation_id"}), 400
