@@ -4,37 +4,169 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Ultron</title>
-    <!-- Bootstrap CSS for styling -->
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous" />
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" />
     <link rel="stylesheet" href="style.css" />
 </head>
-<body>                  
-    <section id="Oval" class="mb-4">
-        <div class="d-flex justify-content-center align-items-center" style="height: 80vh;">
+
+<body>
+
+    <!-- FLOATING TOGGLE -->
+    <button id="sidebar-toggle-floating">
+        ☰
+    </button>
+
+    <!-- GLITCH EFFECT -->
+    <div id="glitch-layer"></div>
+
+    <!-- LOGIN / REGISTER SCREEN -->
+    <section id="auth-screen">
+
+        <div class="auth-card">
+
+            <h2 id="auth-title">ACCESS ULTRON</h2>
+
+            <input
+                type="text"
+                id="auth-username"
+                placeholder="Username"
+                class="auth-register-only"
+            />
+
+            <input
+                type="email"
+                id="auth-email"
+                placeholder="Email"
+            />
+
+            <input
+                type="password"
+                id="auth-password"
+                placeholder="Password"
+            />
+
+            <button id="auth-submit">
+                LOGIN
+            </button>
+
+            <p id="auth-toggle">
+                No account? <span>Create one.</span>
+            </p>
+
+            <p id="auth-error"></p>
+
+        </div>
+
+    </section>
+
+    <!-- MAIN APP -->
+    <section id="Oval" class="hidden">
+
+        <!-- CONVERSATION HISTORY SIDEBAR -->
+        <div id="conversation-history" class="hidden">
+
+            <div class="history-header">
+
+                <h3>ULTRON VS 1.0</h3>
+
+                <button id="new-chat-button">
+                    + NEW CHAT
+                </button>
+
+                <button id="logout-button">
+                    LOGOUT
+                </button>
+
+                <h3>RECENT CONVERSATIONS</h3>
+            </div>
+
+            <div id="conversation-list"></div>
+
+        </div>
+
+        <!-- INTRO PAGE -->
+        <div class="logo-area">
+
             <div class="ultron-symbol">
+
                 <div class="first-circle">
                     <div class="ultron-text">U.L.T.R.O.N</div>
                 </div>
+
                 <div class="second-circle"></div>
                 <div class="third-circle"></div>
                 <div class="fourth-circle"></div>
                 <div class="fifth-circle"></div>
                 <div class="sixth-circle"></div>
-                <div class="seventh-circle-wrapper">                                  
+
+                <div class="seventh-circle-wrapper">
                     <div class="seventh-circle"></div>
                 </div>
+
                 <div class="first-circle-attachment"></div>
+
             </div>
+
         </div>
-        <h1 data-value="ASK ME ANYTHING">ASK ME ANYTHING</h1>
+
+        <h1 data-value="ASK ME ANYTHING">
+            ASK ME ANYTHING
+        </h1>
+
+        <!-- CHAT AREA -->
+        <div id="chat-container">
+
+            <div id="chat-header">
+
+                <span>
+                    ● // CONVERSATION LOG - SECURE CHANNEL
+                </span>
+
+                <div id="signal-wave">
+                    <div></div>
+                    <div></div>
+                    <div></div>
+                    <div></div>
+                    <div></div>
+                </div>
+
+                <span>SIGNAL: STRONG</span>
+
+            </div>
+
+            <div id="chat-box"></div>
+
+        </div>
+
+        <!-- INPUT -->
         <div class="input-container text-center">
-            <input type="text" id="user-input" placeholder="Type your question..." />
-            <button id="ask-button">Ask Ultron</button>
+
+            <button id="file-button">
+                +
+            </button>
+
+            <input
+                type="file"
+                id="file-input"
+                hidden
+                accept=".pdf,.docx,.txt"
+            />
+
+            <input
+                type="text"
+                id="user-input"
+                placeholder="Type your question..."
+            />
+
+            <button id="ask-button">
+                &#8593;
+            </button>
+
         </div>
-        <div id="response-container" class="text-center">
-            <p id="response"></p>
-        </div>
+
     </section>
+
     <script src="main.js"></script>
+
 </body>
 </html>
