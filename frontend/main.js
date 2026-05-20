@@ -329,24 +329,30 @@ function createConversationThenAsk(userInput) {
 
 function loadMessages(conversationId) {
     fetch(`https://ultronchatbox.onrender.com/load-messages/${conversationId}`)
-        .then(response => response.json())
+        .then(response => {
+            if (!response.ok) {
+                throw new Error(`Failed with status ${response.status}`);
+            }
+            return response.json();
+        })
         .then(messages => {
             chatBox.innerHTML = "";
 
             messages.forEach(msg => {
-                if (msg.role === "user") {
-                    addMessage("user", msg.content);
-                } else {
-                    addMessage("ultron", msg.content);
-                }
+                addMessage(msg.role === "user" ? "user" : "ultron", msg.content);
             });
+
+            currentConversationId = conversationId;
 
             oval.classList.add("chat-mode");
             oval.classList.remove("sidebar-open");
             conversationHistory.classList.add("hidden");
+
+            chatBox.scrollTop = chatBox.scrollHeight;
         })
         .catch(error => {
             console.error("Failed to load messages:", error);
+            alert("Could not load this conversation. Check Render logs.");
         });
 }
 
@@ -382,7 +388,7 @@ function loadConversationList(userId) {
 
                 item.addEventListener("click", () => {
                     currentConversationId = convo.id;
-                    loadMessages(currentConversationId);
+                    loadMessages(convo.id);
                 });
 
                 conversationList.appendChild(item);
